@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://lenis.studiofreight.com
+
+# Sitemaps
+Sitemap: https://lenis.studiofreight.com/sitemap.xml
