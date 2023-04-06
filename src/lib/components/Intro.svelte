@@ -40,6 +40,11 @@
 
 	onMount(() => {
 		setTimeout(() => (isLoaded = true), 1000);
+
+		if ($isMobile) {
+			scroll = true;
+			setIntroOutStore(true);
+		}
 	});
 
 	function onTransitionEnd(e: TransitionEvent & { currentTarget: HTMLDivElement }) {
