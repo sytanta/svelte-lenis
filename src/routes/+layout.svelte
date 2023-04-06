@@ -8,7 +8,6 @@
 	import { browser } from '$app/environment';
 	import { page } from '$app/stores';
 	import { lenisStore as lenis, setLenisStore } from '$lib/stores/lenis';
-	import { overflowStore } from '$lib/stores/overflow';
 	import { themeStore } from '$lib/stores/theme';
 	import { useScroll } from '$lib/lifecycle-functions/useScroll';
 	import { useFrame } from '$lib/lifecycle-functions/useFrame';
