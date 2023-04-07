@@ -71,7 +71,7 @@
 </script>
 
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import {
 		AmbientLight,
 		Color,
@@ -166,7 +166,7 @@
 		updateArmMaterial(arm1, currentArm);
 
 		let unsubscribe: () => void;
-		setTimeout(() => {
+		setTimeout(async () => {
 			const ambientLight1 = new AmbientLight(new Color(lights.ambientColor));
 
 			const groupLight1 = new Group();
@@ -197,8 +197,6 @@
 			renderer?.scene?.add(groupLight2);
 			renderer?.scene?.add(parentRef);
 
-			onScroll(0);
-
 			unsubscribe = renderer.onFrame((state) => {
 				if (!parentRef) return;
 
@@ -218,6 +216,10 @@
 
 				parentRef.position.y = yPosition * floatIntensity;
 			});
+
+			await tick();
+
+			onScroll(0);
 		}, 2000);
 
 		return () => {
