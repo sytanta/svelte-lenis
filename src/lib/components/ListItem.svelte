@@ -42,6 +42,10 @@
 			display: flex;
 			justify-content: space-between;
 
+			@include mobile {
+				flex-direction: column;
+			}
+
 			@include desktop {
 				align-items: center;
 				padding: desktop-vw(16px) 0;
@@ -72,8 +76,6 @@
 		}
 
 		@include mobile {
-			flex-direction: column;
-
 			&::before {
 				content: none;
 			}
