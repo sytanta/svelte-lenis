@@ -210,21 +210,21 @@
 			unsubscribe = renderer.onFrame((state) => {
 				if (!parentRef) return;
 
-				// const t = offset + state.clock.getElapsedTime();
-				// parentRef.rotation.x = (Math.cos((t / 4) * speed) / 8) * rotationIntensity;
-				// parentRef.rotation.y = (Math.sin((t / 4) * speed) / 8) * rotationIntensity;
-				// parentRef.rotation.z = (Math.sin((t / 4) * speed) / 20) * rotationIntensity;
+				const t = offset + state.clock.getElapsedTime();
+				parentRef.rotation.x = (Math.cos((t / 4) * speed) / 8) * rotationIntensity;
+				parentRef.rotation.y = (Math.sin((t / 4) * speed) / 8) * rotationIntensity;
+				parentRef.rotation.z = (Math.sin((t / 4) * speed) / 20) * rotationIntensity;
 
-				// let yPosition = Math.sin((t / 4) * speed) / 10;
-				// yPosition = MathUtils.mapLinear(
-				// 	yPosition,
-				// 	-0.1,
-				// 	0.1,
-				// 	floatingRange?.[0] ?? -0.1,
-				// 	floatingRange?.[1] ?? 0.1
-				// );
+				let yPosition = Math.sin((t / 4) * speed) / 10;
+				yPosition = MathUtils.mapLinear(
+					yPosition,
+					-0.1,
+					0.1,
+					floatingRange?.[0] ?? -0.1,
+					floatingRange?.[1] ?? 0.1
+				);
 
-				// parentRef.position.y = yPosition * floatIntensity;
+				parentRef.position.y = yPosition * floatIntensity;
 			});
 		}, 2000);
 
