@@ -71,33 +71,25 @@
 </script>
 
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import {
 		AmbientLight,
-		BoxGeometry,
 		Color,
 		DirectionalLight,
-		DoubleSide,
 		Euler,
 		Group,
-		Material,
 		MathUtils,
-		Mesh,
-		MeshBasicMaterial,
-		MeshPhysicalMaterial,
-		PerspectiveCamera,
 		Scene,
-		Vector2,
-		Vector3,
-		WebGLRenderer
+		Vector3
 	} from 'three';
+
+	import type Renderer from './renderer';
 
 	import { useScroll } from '$lib/lifecycle-functions/useScroll';
 	import { mapRange } from '$lib/utils/maths';
-	import { steps } from './steps';
 	import { thresholdsStore } from '$lib/stores/thresholds';
+	import { steps } from './steps';
 	import { loadGLB } from './loadGLB';
-	import { onMount } from 'svelte';
-	import type Renderer from './renderer';
 
 	export let renderer: Renderer;
 
@@ -383,8 +375,6 @@
 				number
 			]
 		);
-		// console.log('zzzzzzzzzzzzzzzzzzzzzzzzzzzz', progress, from.scale, start, end, scroll, thresholds);
-		// , _scale, _rotation, _position);
 
 		groupRef.scale.setScalar(renderer.viewport.height * _scale);
 		groupRef.position.copy(_position);
@@ -397,24 +387,3 @@
 		onScroll(scroll);
 	});
 </script>
-
-<!-- <ambientLight args={[new Color(lights.ambientColor)]} />
-<group position={lights.light1}>
-	<directionalLight args={[new Color(lights.lightsColor), lights.light1Intensity]} />
-</group>
-<group position={lights.light2}>
-	<directionalLight args={[new Color(lights.lightsColor), lights.light2Intensity]} />
-</group> -->
-<!-- <Float floatIntensity={custom ? 0 : 1} rotationIntensity={custom ? 0 : 1}> -->
-<!-- <group>
-	<group bind:this={parentRef}>
-		<group bind:this={groupRef>
-			{#if type === 1}
-				<primitive object={arm1} scale={[1, 1, 1]} />
-			{:else}
-				<primitive object={arm2} scale={[1, 1, 1]} />
-			{/if}
-		</group>
-	</group>
-</group> -->
-<!-- </Float> -->
