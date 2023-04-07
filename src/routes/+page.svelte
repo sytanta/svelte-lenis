@@ -702,10 +702,9 @@
 	}
 
 	.solution {
-		position: relative;
-
 		color: var(--white);
 		height: 500vh;
+		position: relative;
 
 		@include desktop {
 			height: 1000vh;
@@ -815,9 +814,10 @@
 	}
 
 	.in-use {
-		padding-bottom: mobile-vw(160px);
 		// background-color: var(--theme-primary);
 		color: var(--theme-secondary);
+		padding-bottom: mobile-vw(160px);
+		position: relative;
 
 		@include desktop {
 			padding-bottom: desktop-vw(400px);
