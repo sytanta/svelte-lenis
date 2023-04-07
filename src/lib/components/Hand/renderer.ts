@@ -63,7 +63,7 @@ export default class Renderer {
 
 		const width = window.innerWidth;
 		const height = window.innerHeight;
-		const aspect = width / height; // (window.devicePixelRatio * width) / height;
+		const aspect = width > height ? width / height : height / width; // (window.devicePixelRatio * width) / height;
 		// const pixelRatio = Math.min(window.devicePixelRatio, 2);
 		// const frustrum = 5;
 
