@@ -153,8 +153,9 @@
 		groupRef?.add(arm2);
 	}
 
-	$: if ($introOutStore) {
-		setTimeout(() => onScroll(0), 300);
+	$: if (thresholds?.length) {
+		arm1.scale.set(1, 1, 1);
+		onScroll(0);
 	}
 
 	onMount(async () => {
@@ -164,7 +165,7 @@
 		arm1 = a1.scene.children[0];
 		arm2 = a2.scene.children[0];
 
-		arm1.scale.set(1, 1, 1);
+		arm1.scale.set(0, 0, 0);
 		arm2.scale.set(1, 1, 1);
 
 		currentArm = arm1;
