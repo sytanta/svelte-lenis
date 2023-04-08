@@ -54,7 +54,9 @@
 	let inuseRectRef: HTMLElement;
 
 	$: if (Object.keys($homePageLoadedComponentsStore).length === 4) {
-		updateThresholds();
+		setTimeout(() => {
+			updateThresholds();
+		}, 800);
 	}
 
 	onMount(async () => {
