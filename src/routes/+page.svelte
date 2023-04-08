@@ -6,6 +6,10 @@
 	import { introOutStore } from '$lib/stores/introOut';
 	import { addThreshold } from '$lib/stores/thresholds';
 	import { setThemeStore, themeStore } from '$lib/stores/theme';
+	import {
+		homePageLoadedComponentsStore,
+		setHomePageLoadedComponentsStore
+	} from '$lib/stores/homePageLoadedComponents';
 
 	import { intersection } from '$lib/actions/intersection';
 	import { useRect } from '$lib/lifecycle-functions/useRect';
@@ -49,6 +53,31 @@
 	let featuresRectRef: HTMLElement;
 	let inuseRectRef: HTMLElement;
 
+	$: if (Object.keys($homePageLoadedComponentsStore).length === 4) {
+		updateThresholds();
+	}
+
+	onMount(async () => {
+		SFDR = (await import('../lib/components/Icons/Sfdr.svelte')).default;
+		GitHub = (await import('../lib/components/Icons/Github.svelte')).default;
+
+		AppearTitle = await dynamicImport(
+			'AppearTitle',
+			import('../lib/components/AppearTitle.svelte')
+		);
+		HorizontalSlides = await dynamicImport(
+			'HorizontalSlides',
+			import('../lib/components/HorizontalSlides.svelte')
+		);
+		Parallax = await dynamicImport('Parallax', import('../lib/components/Parallax.svelte'));
+		FeatureCards = await dynamicImport(
+			'Parallax',
+			import('../lib/components/FeatureCards/FeatureCards.svelte')
+		);
+
+		setRectRefs();
+	});
+
 	useScroll(({ scroll }) => {
 		hasScrolled = scroll > 10;
 
@@ -77,63 +106,46 @@
 		}
 	});
 
-	onMount(async () => {
-		SFDR = (await import('../lib/components/Icons/Sfdr.svelte')).default;
-		GitHub = (await import('../lib/components/Icons/Github.svelte')).default;
-
-		AppearTitle = await dynamicImport(
-			'AppearTitle',
-			import('../lib/components/AppearTitle.svelte')
-		);
-		HorizontalSlides = await dynamicImport(
-			'HorizontalSlides',
-			import('../lib/components/HorizontalSlides.svelte')
-		);
-		Parallax = await dynamicImport('Parallax', import('../lib/components/Parallax.svelte'));
-		FeatureCards = await dynamicImport(
-			'Parallax',
-			import('../lib/components/FeatureCards/FeatureCards.svelte')
-		);
-
+	function setRectRefs() {
 		setZoomWrapperRectRef(zoomWrapperRef);
 		setWhyRectRef(whyRef);
 		setCardsRectRef(cardsRectRef);
 		setWhiteRectRef(whiteRectRef);
 		setFeaturesRectRef(featuresRectRef);
 		setInuseRectRef(inuseRectRef);
+	}
 
-		setTimeout(() => {
-			addThreshold({ id: 'top', value: 0 });
+	function updateThresholds() {
+		addThreshold({ id: 'top', value: 0 });
 
-			const top1 = $whyRect.top - $size.height / 2;
-			addThreshold({ id: 'why-start', value: top1 });
-			addThreshold({
-				id: 'why-end',
-				value: top1 + $whyRect.height
-			});
+		const top1 = $whyRect.top - $size.height / 2;
+		addThreshold({ id: 'why-start', value: top1 });
+		addThreshold({
+			id: 'why-end',
+			value: top1 + $whyRect.height
+		});
 
-			const top2 = $cardsRect.top - $size.height / 2;
-			addThreshold({ id: 'cards-start', value: top2 });
-			addThreshold({ id: 'cards-end', value: top2 + $cardsRect.height });
-			addThreshold({
-				id: 'red-end',
-				value: top2 + $cardsRect.height + $size.height
-			});
+		const top2 = $cardsRect.top - $size.height / 2;
+		addThreshold({ id: 'cards-start', value: top2 });
+		addThreshold({ id: 'cards-end', value: top2 + $cardsRect.height });
+		addThreshold({
+			id: 'red-end',
+			value: top2 + $cardsRect.height + $size.height
+		});
 
-			const top3 = $whiteRect.top - $size.height;
-			addThreshold({ id: 'light-start', value: top3 });
+		const top3 = $whiteRect.top - $size.height;
+		addThreshold({ id: 'light-start', value: top3 });
 
-			const top4 = $featuresRect.top;
-			addThreshold({ id: 'features', value: top4 });
+		const top4 = $featuresRect.top;
+		addThreshold({ id: 'features', value: top4 });
 
-			// const top5 = $inuseRect.top;
-			const top5 = inuseRectRef.getBoundingClientRect().top;
-			addThreshold({ id: 'in-use', value: top5 });
+		// const top5 = $inuseRect.top;
+		const top5 = inuseRectRef.getBoundingClientRect().top;
+		addThreshold({ id: 'in-use', value: top5 });
 
-			const top6 = $lenis?.limit;
-			addThreshold({ id: 'end', value: top6! });
-		}, 500);
-	});
+		const top6 = $lenis?.limit;
+		addThreshold({ id: 'end', value: top6! });
+	}
 </script>
 
 <div class="canvas">
@@ -234,7 +246,11 @@
 <section class="rethink">
 	<div class="layout-grid pre">
 		<div class="highlight" data-lenis-scroll-snap-align="start">
-			<svelte:component this={Parallax} speed={-0.5}>
+			<svelte:component
+				this={Parallax}
+				speed={-0.5}
+				on:mounted={() => setHomePageLoadedComponentsStore('Parallax')}
+			>
 				<p class="h2">
 					<AppearTitle>Rethinking smooth scroll</AppearTitle>
 				</p>
@@ -264,7 +280,10 @@
 		</div>
 	</div>
 	<div class="cards" bind:this={cardsRectRef}>
-		<svelte:component this={HorizontalSlides}>
+		<svelte:component
+			this={HorizontalSlides}
+			on:mounted={() => setHomePageLoadedComponentsStore('HorizontalSlides')}
+		>
 			<Card class="card" number={1} text="Loss of performance budget due to using CSS transforms" />
 			<Card
 				class="card"
@@ -313,7 +332,10 @@
 		</div>
 	</div>
 	<section bind:this={featuresRectRef}>
-		<svelte:component this={FeatureCards} />
+		<svelte:component
+			this={FeatureCards}
+			on:mounted={() => setHomePageLoadedComponentsStore('FeatureCards')}
+		/>
 	</section>
 </section>
 <section
@@ -329,7 +351,9 @@
 	<div class="layout-grid">
 		<aside class="title">
 			<p class="h3">
-				<svelte:component this={AppearTitle}
+				<svelte:component
+					this={AppearTitle}
+					on:mounted={() => setHomePageLoadedComponentsStore('AppearTitle')}
 					>Lenis
 					<br />
 					<span class="grey">in use</span></svelte:component
