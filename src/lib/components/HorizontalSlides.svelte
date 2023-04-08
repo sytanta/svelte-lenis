@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { createEventDispatcher, onMount } from 'svelte';
 	import { gsap } from 'gsap';
 
 	import { useWindowSize } from '$lib/lifecycle-functions/useWindowSize';
@@ -10,6 +10,8 @@
 
 	let wrapperRectRef: HTMLDivElement;
 	let elementRectRef: HTMLDivElement;
+
+	const emit = createEventDispatcher();
 
 	const isMobile = useMediaQuery('(max-width: 800px)');
 	const [setWrapperRectRef, wrapperRect] = useRect();
@@ -48,6 +50,8 @@
 
 		setWrapperRectRef(wrapperRectRef);
 		setElementRectRef(elementRectRef);
+
+		emit('mounted');
 	});
 </script>
 

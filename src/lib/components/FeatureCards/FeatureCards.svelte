@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount, type ComponentType } from 'svelte';
+	import { onMount, type ComponentType, createEventDispatcher } from 'svelte';
 	import cn from 'clsx';
 
 	import { useRect } from '$lib/lifecycle-functions/useRect';
@@ -33,6 +33,8 @@
 	let elementRef: HTMLDivElement;
 	let current: number = -1;
 
+	const emit = createEventDispatcher();
+
 	const [windowSize] = useWindowSize();
 	const [setRef, rect] = useRect();
 
@@ -40,6 +42,8 @@
 		AppearTitle = (await import('../AppearTitle.svelte')).default;
 
 		setRef(containerRef);
+
+		emit('mounted');
 	});
 
 	useScroll(({ scroll }) => {

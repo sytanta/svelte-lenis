@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { createEventDispatcher, onMount } from 'svelte';
 	import cn from 'clsx';
 
 	import { intersection } from '$lib/actions/intersection';
@@ -11,12 +12,16 @@
 	let titleRef: HTMLSpanElement | null = null;
 	let intersected = false;
 
+	const emit = createEventDispatcher();
+
 	const [rectRef] = useRect();
 	const [size] = useWindowSize();
 	const isMobile = useMediaQuery('(max-width: 800px)');
 
 	$: if (!$isMobile) {
 	}
+
+	onMount(() => emit('mounted'));
 
 	function rectAction(node: HTMLSpanElement) {
 		rectRef(node);

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { createEventDispatcher, onMount } from 'svelte';
 	import { gsap } from 'gsap';
 
 	import { useWindowSize } from '$lib/lifecycle-functions/useWindowSize';
@@ -12,10 +12,12 @@
 	export let speed = 1;
 	export let position: string = '';
 
-	let triggerRef: HTMLDivElement;
-	let targetRef: HTMLDivElement;
+	const emit = createEventDispatcher();
 
 	const [size] = useWindowSize();
+
+	let triggerRef: HTMLDivElement;
+	let targetRef: HTMLDivElement;
 
 	onMount(async () => {
 		const y = $size.width * speed * 0.1;
@@ -41,6 +43,8 @@
 				}
 			}
 		});
+
+		emit('mounted');
 
 		return () => {
 			timeline.kill();
