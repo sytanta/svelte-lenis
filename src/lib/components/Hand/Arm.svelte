@@ -71,7 +71,7 @@
 </script>
 
 <script lang="ts">
-	import { onMount, tick } from 'svelte';
+	import { onMount } from 'svelte';
 	import {
 		AmbientLight,
 		Color,
@@ -90,6 +90,7 @@
 	import { thresholdsStore } from '$lib/stores/thresholds';
 	import { steps } from './steps';
 	import { loadGLB } from './loadGLB';
+	import { introOutStore } from '$lib/stores/introOut';
 
 	export let renderer: Renderer;
 
@@ -152,6 +153,10 @@
 		groupRef?.add(arm2);
 	}
 
+	$: if ($introOutStore) {
+		onScroll(0);
+	}
+
 	onMount(async () => {
 		const a1 = await loadGLB('/models/arm.glb');
 		const a2 = await loadGLB('/models/arm2.glb');
@@ -165,69 +170,112 @@
 		currentArm = arm1;
 		updateArmMaterial(arm1, currentArm);
 
-		let unsubscribe: () => void;
-		setTimeout(async () => {
-			const ambientLight1 = new AmbientLight(new Color(lights.ambientColor));
+		const ambientLight1 = new AmbientLight(new Color(lights.ambientColor));
 
-			const groupLight1 = new Group();
-			groupLight1.position.set(...lights.light1.value);
-			const directionalLight1 = new DirectionalLight(
-				new Color(lights.lightsColor),
-				lights.light1Intensity.value
+		const groupLight1 = new Group();
+		groupLight1.position.set(...lights.light1.value);
+		const directionalLight1 = new DirectionalLight(
+			new Color(lights.lightsColor),
+			lights.light1Intensity.value
+		);
+
+		const groupLight2 = new Group();
+		groupLight2.position.set(...lights.light2.value);
+		const directionalLight2 = new DirectionalLight(
+			new Color(lights.lightsColor),
+			lights.light2Intensity.value
+		);
+
+		groupLight1.add(directionalLight1);
+		groupLight2.add(directionalLight2);
+
+		parentRef = new Group();
+		groupRef = new Group();
+
+		groupRef.add(arm1);
+		parentRef.add(groupRef);
+
+		renderer?.scene?.add(ambientLight1);
+		renderer?.scene?.add(groupLight1);
+		renderer?.scene?.add(groupLight2);
+		renderer?.scene?.add(parentRef);
+
+		const unsubscribe = renderer.onFrame((state) => {
+			if (!parentRef) return;
+
+			const t = offset + state.clock.getElapsedTime();
+			parentRef.rotation.x = (Math.cos((t / 4) * speed) / 8) * rotationIntensity;
+			parentRef.rotation.y = (Math.sin((t / 4) * speed) / 8) * rotationIntensity;
+			parentRef.rotation.z = (Math.sin((t / 4) * speed) / 20) * rotationIntensity;
+
+			let yPosition = Math.sin((t / 4) * speed) / 10;
+			yPosition = MathUtils.mapLinear(
+				yPosition,
+				-0.1,
+				0.1,
+				floatingRange?.[0] ?? -0.1,
+				floatingRange?.[1] ?? 0.1
 			);
 
-			const groupLight2 = new Group();
-			groupLight2.position.set(...lights.light2.value);
-			const directionalLight2 = new DirectionalLight(
-				new Color(lights.lightsColor),
-				lights.light2Intensity.value
-			);
-
-			groupLight1.add(directionalLight1);
-			groupLight2.add(directionalLight2);
-
-			parentRef = new Group();
-			groupRef = new Group();
-
-			groupRef.add(arm1);
-			parentRef.add(groupRef);
-
-			renderer?.scene?.add(ambientLight1);
-			renderer?.scene?.add(groupLight1);
-			renderer?.scene?.add(groupLight2);
-			renderer?.scene?.add(parentRef);
-
-			unsubscribe = renderer.onFrame((state) => {
-				if (!parentRef) return;
-
-				const t = offset + state.clock.getElapsedTime();
-				parentRef.rotation.x = (Math.cos((t / 4) * speed) / 8) * rotationIntensity;
-				parentRef.rotation.y = (Math.sin((t / 4) * speed) / 8) * rotationIntensity;
-				parentRef.rotation.z = (Math.sin((t / 4) * speed) / 20) * rotationIntensity;
-
-				let yPosition = Math.sin((t / 4) * speed) / 10;
-				yPosition = MathUtils.mapLinear(
-					yPosition,
-					-0.1,
-					0.1,
-					floatingRange?.[0] ?? -0.1,
-					floatingRange?.[1] ?? 0.1
-				);
-
-				parentRef.position.y = yPosition * floatIntensity;
-			});
-
-			await tick();
-
-			onScroll(0);
-		}, 2000);
+			parentRef.position.y = yPosition * floatIntensity;
+		});
 
 		return () => {
 			unsubscribe && unsubscribe();
 		};
 	});
 
+	function onScroll(scroll: number) {
+		if (!groupRef) return;
+
+		// if (model.custom) {
+		// 	groupRef.scale.setScalar(renderer.viewport.height * model.scale.value);
+		// 	groupRef.position.set(
+		// 		renderer.viewport.width * model.position[0],
+		// 		renderer.viewport.height * model.position[1],
+		// 		0
+		// 	);
+		// 	groupRef.rotation.fromArray(model.rotation.value.map((v) => MathUtils.degToRad(v)));
+		// 	return;
+		// }
+
+		const current = thresholds.findIndex((v) => scroll < v) - 1;
+
+		const start = thresholds[current];
+		const end = thresholds[current + 1];
+		const progress = mapRange(start, end, scroll, 0, 1);
+
+		const from = steps[current];
+		const to = steps[current + 1];
+
+		groupRef.visible = from?.type === to?.type;
+
+		if (!to) return;
+
+		const _scale = mapRange(0, 1, progress, from.scale, to.scale);
+		const _position = new Vector3(
+			renderer.viewport.width * mapRange(0, 1, progress, from.position[0], to.position[0]),
+			renderer.viewport.height * mapRange(0, 1, progress, from.position[1], to.position[1]),
+			0
+		);
+		const _rotation = new Euler().fromArray(
+			dummyArr.map((_, i) => mapRange(0, 1, progress, from.rotation[i], to.rotation[i])) as [
+				number,
+				number,
+				number
+			]
+		);
+
+		groupRef.scale.setScalar(renderer.viewport.height * _scale);
+		groupRef.position.copy(_position);
+		groupRef.rotation.copy(_rotation);
+
+		type = to.type;
+	}
+
 	useScroll(({ scroll }) => {
+		onScroll(scroll);
+
 		if (scroll < $thresholdsStore['light-start']) {
 			// lights = Object.assign({}, lights, {
 			// 	light1Intensity: 0.35,
@@ -335,57 +383,5 @@
 
 			updateML = true;
 		}
-	});
-
-	function onScroll(scroll: number) {
-		if (!groupRef) return;
-
-		// if (model.custom) {
-		// 	groupRef.scale.setScalar(renderer.viewport.height * model.scale.value);
-		// 	groupRef.position.set(
-		// 		renderer.viewport.width * model.position[0],
-		// 		renderer.viewport.height * model.position[1],
-		// 		0
-		// 	);
-		// 	groupRef.rotation.fromArray(model.rotation.value.map((v) => MathUtils.degToRad(v)));
-		// 	return;
-		// }
-
-		const current = thresholds.findIndex((v) => scroll < v) - 1;
-
-		const start = thresholds[current];
-		const end = thresholds[current + 1];
-		const progress = mapRange(start, end, scroll, 0, 1);
-
-		const from = steps[current];
-		const to = steps[current + 1];
-
-		groupRef.visible = from?.type === to?.type;
-
-		if (!to) return;
-
-		const _scale = mapRange(0, 1, progress, from.scale, to.scale);
-		const _position = new Vector3(
-			renderer.viewport.width * mapRange(0, 1, progress, from.position[0], to.position[0]),
-			renderer.viewport.height * mapRange(0, 1, progress, from.position[1], to.position[1]),
-			0
-		);
-		const _rotation = new Euler().fromArray(
-			dummyArr.map((_, i) => mapRange(0, 1, progress, from.rotation[i], to.rotation[i])) as [
-				number,
-				number,
-				number
-			]
-		);
-
-		groupRef.scale.setScalar(renderer.viewport.height * _scale);
-		groupRef.position.copy(_position);
-		groupRef.rotation.copy(_rotation);
-
-		type = to.type;
-	}
-
-	useScroll(({ scroll }) => {
-		onScroll(scroll);
 	});
 </script>

@@ -72,16 +72,13 @@
 
 		const dots = new Points(bufferGeometry, material);
 
-		let unsubscribe: () => void;
-		setTimeout(() => {
-			// uniforms.uResolution.value.set(renderer.viewport.width, renderer.viewport.height);
+		// uniforms.uResolution.value.set(renderer.viewport.width, renderer.viewport.height);
 
-			renderer?.scene?.add(dots);
+		renderer?.scene?.add(dots);
 
-			unsubscribe = renderer?.onFrame(({ clock }) => {
-				uniforms.uTime.value = clock.getElapsedTime();
-			});
-		}, 1000);
+		const unsubscribe = renderer?.onFrame(({ clock }) => {
+			uniforms.uTime.value = clock.getElapsedTime();
+		});
 
 		return () => {
 			unsubscribe && unsubscribe();
