@@ -90,7 +90,6 @@
 	import { thresholdsStore } from '$lib/stores/thresholds';
 	import { steps } from './steps';
 	import { loadGLB } from './loadGLB';
-	import { introOutStore } from '$lib/stores/introOut';
 
 	export let renderer: Renderer;
 
@@ -154,7 +153,8 @@
 	}
 
 	$: if (thresholds?.length) {
-		arm1.scale.set(1, 1, 1);
+		updateArmMaterial(arm1, currentArm);
+		arm1?.scale?.set(1, 1, 1);
 		onScroll(0);
 	}
 
@@ -169,7 +169,6 @@
 		arm2.scale.set(1, 1, 1);
 
 		currentArm = arm1;
-		updateArmMaterial(arm1, currentArm);
 
 		const ambientLight1 = new AmbientLight(new Color(lights.ambientColor));
 
