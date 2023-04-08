@@ -154,7 +154,7 @@
 	}
 
 	$: if ($introOutStore) {
-		setTimeout(() => onScroll(0), 0);
+		setTimeout(() => onScroll(0), 300);
 	}
 
 	onMount(async () => {
