@@ -54,6 +54,8 @@
 	let inuseRectRef: HTMLElement;
 
 	$: if (Object.keys($homePageLoadedComponentsStore).length === 4) {
+		setRectRefs();
+
 		setTimeout(() => {
 			updateThresholds();
 		}, 800);
@@ -76,8 +78,6 @@
 			'Parallax',
 			import('../lib/components/FeatureCards/FeatureCards.svelte')
 		);
-
-		setRectRefs();
 	});
 
 	useScroll(({ scroll }) => {

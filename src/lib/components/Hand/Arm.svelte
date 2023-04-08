@@ -153,7 +153,6 @@
 	}
 
 	$: if (thresholds?.length) {
-		updateArmMaterial(arm1, currentArm);
 		arm1?.scale?.set(1, 1, 1);
 		onScroll(0);
 	}
@@ -169,6 +168,7 @@
 		arm2.scale.set(1, 1, 1);
 
 		currentArm = arm1;
+		updateArmMaterial(arm1, currentArm);
 
 		const ambientLight1 = new AmbientLight(new Color(lights.ambientColor));
 
